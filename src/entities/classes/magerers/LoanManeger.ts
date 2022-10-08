@@ -1,8 +1,8 @@
-import DatabaseAdapter from "../../adapters/databaseAdapter";
-import { FirebaseAdapter } from "../../adapters/FirebaseAdapter";
-import LoanManegerInterface from "../interfaces/LoanManegerInterface";
-import { RequestType } from "../RequestType";
-import { LoanType } from "../types/Loan";
+import DatabaseAdapter from "../../../adapters/databaseAdapter";
+import { FirebaseAdapter } from "../../../adapters/FirebaseAdapter";
+import LoanManegerInterface from "../../interfaces/LoanManegerInterface";
+import { RequestType } from "../../RequestType";
+import { LoanType } from "../../types/Loan";
 
 export default class LoanManeger implements LoanManegerInterface{
   private dbAdapter: DatabaseAdapter;

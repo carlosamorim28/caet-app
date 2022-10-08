@@ -19,4 +19,6 @@ export default interface DatabaseAdapter {
   concludeLoan(id: number): Promise<RequestType<LoanType>>;
   listOpenLoans(): Promise<RequestType<Array<LoanType>>>;
   listCloseLoans(): Promise<RequestType<Array<LoanType>>>;
+
+  getLastId(nameTable: string): Promise<number>;
 }

@@ -1,5 +1,5 @@
 import { RequestType } from "../entities/RequestType";
-import MaterialType from "../entities/types/Material";
+import MaterialType, { StatusMaterial } from "../entities/types/Material";
 import MemberType from "../entities/types/Member";
 import DatabaseAdapter from "./databaseAdapter";
 import {FirebaseApp, initializeApp} from 'firebase/app'
@@ -16,10 +16,12 @@ const firebaseConfig = {
   appId: "1:101852658267:web:86aad721685125bdfadd7e",
   measurementId: "G-YZ6LZ5KGCX"
 }
-const Constants = {
+export const Constants = {
   USER_TABLE: "Users",
   MATERIAL_TABLE: "Materials",
-  LOAN_TABLE: 'Loans'
+  LOAN_TABLE: 'Loans',
+  LAST_IDS: 'last_ids'
+
 }
 
 export class FirebaseAdapter implements DatabaseAdapter{
@@ -39,10 +41,12 @@ export class FirebaseAdapter implements DatabaseAdapter{
 
   async createUser(newMember: MemberType): Promise<RequestType<MemberType>> {
     try{
+      await createUserWithEmailAndPassword(this.auth,newMember.login,newMember.senha)
       await setDoc(doc(this.firestore, Constants.USER_TABLE,`${newMember.id}`), newMember);
-      const response = await createUserWithEmailAndPassword(this.auth,newMember.login,newMember.senha)
+      await setDoc(doc(this.firestore,Constants.LAST_IDS,Constants.USER_TABLE),{id:newMember.id})
       return {statusCode: 200, data: newMember}
     }catch(e) {
+      console.log(e)
       return {statusCode: 400, message: `${e}`}
     }
   }
@@ -101,6 +105,7 @@ export class FirebaseAdapter implements DatabaseAdapter{
   }
   async createMaterial(newMaterial: MaterialType): Promise<RequestType<MaterialType>> {
     try{
+      await setDoc(doc(this.firestore,Constants.LAST_IDS,Constants.MATERIAL_TABLE),{id:newMaterial.id})
       await setDoc(doc(this.firestore,Constants.MATERIAL_TABLE,String(newMaterial.id)),newMaterial)
       console.log('Ganhamo')
       return {
@@ -146,9 +151,13 @@ export class FirebaseAdapter implements DatabaseAdapter{
       }
     }
   }
-  async createLoan(loan: LoanType): Promise<RequestType<LoanType>> {
+   async createLoan(loan: LoanType): Promise<RequestType<LoanType>> {
     try{
+      await setDoc(doc(this.firestore,Constants.LAST_IDS,Constants.LOAN_TABLE),{id:loan.id})
       await setDoc(doc(this.firestore, Constants.LOAN_TABLE, String(loan.id)),loan);
+      const material: MaterialType = (await getDoc(doc(this.firestore,Constants.MATERIAL_TABLE,String(loan.mterial_id)))).data()
+      material.status = StatusMaterial.outCAET
+      await setDoc(doc(this.firestore, Constants.MATERIAL_TABLE, String(loan.mterial_id)),material )
       return{
         statusCode:200,
         data: loan
@@ -166,13 +175,14 @@ export class FirebaseAdapter implements DatabaseAdapter{
       loan.dateReturn = new Date(Date.now()).toDateString()
       loan.status = StatusLoan.finalized
       await setDoc(doc(this.firestore, Constants.LOAN_TABLE, String(loan.id)),loan);
-      console.log('deu Bom time')
+      const material: MaterialType = (await getDoc(doc(this.firestore,Constants.MATERIAL_TABLE,String(loan.mterial_id)))).data()
+      material.status = StatusMaterial.inCAET;
+      await setDoc(doc(this.firestore, Constants.MATERIAL_TABLE, String(loan.mterial_id)),material)
       return{
         statusCode: 200,
         data:loan
       }
     }catch(error){
-      console.log('deu ruim time')
       return{
         statusCode:400
       }
@@ -210,6 +220,25 @@ export class FirebaseAdapter implements DatabaseAdapter{
       return {
         statusCode:400
       }
+    }
+  } 
+
+  async getLastId(nameTable: string): Promise<number> {
+    try{
+      const document = doc(this.firestore,Constants.LAST_IDS,nameTable)
+      const id_data = await getDoc(document)
+      let id = 0
+      if(id_data.exists()){
+        id = id_data.data().id      
+      }else{
+        await setDoc(document,{id: 0})
+      }
+      console.log('id', id)
+      return id
+      
+    }catch(error){
+      console.log(error)
+      return -1;
     }
   }
   

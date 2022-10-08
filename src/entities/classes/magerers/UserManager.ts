@@ -1,8 +1,8 @@
-import DatabaseAdapter from "../../adapters/databaseAdapter";
-import { FirebaseAdapter } from "../../adapters/FirebaseAdapter";
-import UserManegerInterface from "../interfaces/UserManegerInterface";
-import { RequestType } from "../RequestType";
-import MemberType from "../types/Member";
+import DatabaseAdapter from "../../../adapters/databaseAdapter";
+import { FirebaseAdapter } from "../../../adapters/FirebaseAdapter";
+import UserManegerInterface from "../../interfaces/UserManegerInterface";
+import { RequestType } from "../../RequestType";
+import MemberType from "../../types/Member";
 
 class UserManager implements UserManegerInterface{
   private dbAdapter:DatabaseAdapter;

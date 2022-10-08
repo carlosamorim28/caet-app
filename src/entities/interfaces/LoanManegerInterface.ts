@@ -1,4 +1,5 @@
 import { RequestType } from "../RequestType";
+import { LoanType } from "../types/Loan";
 
 interface LoanManegerInterface {
   generetateNewLoan(newLoan: LoanType): Promise<RequestType<LoanType>>;
