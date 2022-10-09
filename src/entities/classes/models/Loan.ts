@@ -10,7 +10,7 @@ export default class Loan implements LoanType{
   dateExit: string = '';
   dateReturn: string = '';
 
-  async generator(member_id: number, mterial_id: number,): Promise<LoanType>{
+  async generator(member_id: number, mterial_id: number): Promise<LoanType>{
     const db: DatabaseAdapter = new FirebaseAdapter()
     this.id = await db.getLastId(Constants.LOAN_TABLE) + 1;
     this.member_id = member_id;
