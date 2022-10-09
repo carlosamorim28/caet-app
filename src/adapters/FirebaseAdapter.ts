@@ -41,9 +41,9 @@ export class FirebaseAdapter implements DatabaseAdapter{
 
   async createUser(newMember: MemberType): Promise<RequestType<MemberType>> {
     try{
-      await createUserWithEmailAndPassword(this.auth,newMember.login,newMember.senha)
+      await createUserWithEmailAndPassword(this.auth,newMember.login,newMember.senha);
       await setDoc(doc(this.firestore, Constants.USER_TABLE,`${newMember.id}`), newMember);
-      await setDoc(doc(this.firestore,Constants.LAST_IDS,Constants.USER_TABLE),{id:newMember.id})
+      await setDoc(doc(this.firestore,Constants.LAST_IDS,Constants.USER_TABLE),{id:newMember.id});
       return {statusCode: 200, data: newMember}
     }catch(e) {
       console.log(e)
@@ -64,15 +64,14 @@ export class FirebaseAdapter implements DatabaseAdapter{
   async login(login: string, senha: string): Promise<RequestType<MemberType>> {
     try{
       const userCredencial:UserCredential = await signInWithEmailAndPassword(this.auth,login,senha);
-      const documentData: QuerySnapshot<DocumentData> = await getDocs(query(collection(this.firestore,Constants.USER_TABLE),where("login",'==',userCredencial.user.email)))
+      const documentData: QuerySnapshot<DocumentData> = await getDocs(query(collection(this.firestore,Constants.USER_TABLE), where("login",'==',userCredencial.user.email)));
       let user: MemberType | undefined = undefined;
       documentData.forEach((value: DocumentData)=>{
         user = value.data()
       })
-      console.log("user", user)
       return{
         statusCode:200,
-        data: user ? user : undefined
+        data: user
       }
     }catch(e){
       return{
@@ -107,13 +106,11 @@ export class FirebaseAdapter implements DatabaseAdapter{
     try{
       await setDoc(doc(this.firestore,Constants.LAST_IDS,Constants.MATERIAL_TABLE),{id:newMaterial.id})
       await setDoc(doc(this.firestore,Constants.MATERIAL_TABLE,String(newMaterial.id)),newMaterial)
-      console.log('Ganhamo')
       return {
         statusCode: 200,
         data: newMaterial
       }
     }catch(error){
-      console.log('perdemo')
       return{
         statusCode: 400,
         message: String(error)
@@ -151,12 +148,12 @@ export class FirebaseAdapter implements DatabaseAdapter{
       }
     }
   }
-   async createLoan(loan: LoanType): Promise<RequestType<LoanType>> {
+   async createLoan(loan: LoanType): Promise<RequestType<LoanType>>  {
     try{
       await setDoc(doc(this.firestore,Constants.LAST_IDS,Constants.LOAN_TABLE),{id:loan.id})
       await setDoc(doc(this.firestore, Constants.LOAN_TABLE, String(loan.id)),loan);
       const material: MaterialType = (await getDoc(doc(this.firestore,Constants.MATERIAL_TABLE,String(loan.mterial_id)))).data()
-      material.status = StatusMaterial.outCAET
+      material.status = StatusMaterial.outCAET 
       await setDoc(doc(this.firestore, Constants.MATERIAL_TABLE, String(loan.mterial_id)),material )
       return{
         statusCode:200,
@@ -169,6 +166,7 @@ export class FirebaseAdapter implements DatabaseAdapter{
     }
 
   }
+  
   async concludeLoan(id: number): Promise<RequestType<LoanType>> {
     try{
       const loan: LoanType  = (await getDoc(doc(this.firestore,Constants.LOAN_TABLE,String(id)))).data()
