@@ -13,28 +13,32 @@ import { StatusLoan } from './src/entities/types/Loan';
 import { StatusMaterial } from './src/entities/types/Material';
 import Material from './src/entities/classes/models/Material';
 import Loan from './src/entities/classes/models/Loan';
-
+import Screen from './src/components/Screen/Screen';
+import imageBackground from './src/assets/teste.png'
+import CaetInput from './src/components/TextImput/TextImput';
+import { useState } from 'react';
+import Button from './src/components/button/Button';
+import TextClicable from './src/components/TextClicable/TextClicable';
+import { LoginScreen } from './src/screens/LoginScreen/LoginScreen';
 export default function App() {
   const userManeger: UserManegerInterface = new UserManager();
   const materalManeger: ManterialManegerInterface = new MaterialManeger();
   const loanManeger: LoanManegerInterface = new LoanManeger();
+  const [text, setText] = useState('')
   async function run(){
-    await materalManeger.generateNewMaterial(await new Material().generator('Pincel','Pincel preto novinho em folha'))
-    await loanManeger.generetateNewLoan(await new Loan().generator(1,2))
+    await loanManeger.finishLoan(1)
   }
   run()
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+return (
+  <LoginScreen />
+)
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'black',
   },
+  input: {
+    color: 'gray',
+    marginVertical: 5
+  }
 });
